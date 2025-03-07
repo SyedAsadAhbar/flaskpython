@@ -1,21 +1,31 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: "us-east-1" # Change to your AWS region
+    ECR_REPOSITORY: "pipeline-repo"
+    IMAGE_TAG: "latest"
+
 phases:
   pre_build:
     commands:
-      - echo Logging into Amazon ECR...
+      - echo "Logging in to Amazon ECR..."
+      - aws --version
+      - REPO_URI=$(aws ecr describe-repositories --repository-names $ECR_REPOSITORY --query 'repositories[0].repositoryUri' --output text)
+      - echo "ECR Repository URI: $REPO_URI"
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 345594605580.dkr.ecr.us-east-1.amazonaws.com
+
   build:
     commands:
-      - echo Building Docker image...
-      - docker build -t my-app .
-      - docker tag my-app:latest 345594605580.dkr.ecr.us-east-1.amazonaws.com/docker-image
+      - echo "Building the Docker image..."
+      - docker build -t $ECR_REPOSITORY .
+      - docker tag $ECR_REPOSITORY:latest $REPO_URI:$IMAGE_TAG
+
   post_build:
     commands:
-      - echo Pushing Docker image to Amazon ECR...
-      - docker push 345594605580.dkr.ecr.us-east-1.amazonaws.com/docker-image
-      - echo Writing image definitions...
-      - printf '[{"name":"my-app","imageUri":"%s"}]' 345594605580.dkr.ecr.us-east-1.amazonaws.com/docker-image > imagedefinitions.json
+      - echo "Pushing the Docker image to Amazon ECR..."
+      - docker push $REPO_URI:$IMAGE_TAG
+      - echo "Build completed successfully."
+
 artifacts:
-  files:
-    - imagedefinitions.json
+  files: []
