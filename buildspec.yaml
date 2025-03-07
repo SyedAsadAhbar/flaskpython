@@ -9,6 +9,7 @@ env:
 phases:
   pre_build:
     commands:
+      - ECR_REPOSITORY="pipeline-repo"
       - echo "Logging in to Amazon ECR..."
       - aws --version
       - REPO_URI=$(aws ecr describe-repositories --repository-names $ECR_REPOSITORY --query 'repositories[0].repositoryUri' --output text)
