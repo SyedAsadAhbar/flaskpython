@@ -14,7 +14,7 @@ phases:
       - REPO_URI=$(aws ecr describe-repositories --repository-names $ECR_REPOSITORY --query 'repositories[0].repositoryUri' --output text)
       - echo "ECR Repository URI: $REPO_URI"
       - echo "REPO_URI=$REPO_URI" >> $CODEBUILD_ENV_FILE
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 345594605580.dkr.ecr.us-east-1.amazonaws.com
 
   build:
     commands:
