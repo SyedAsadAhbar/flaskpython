@@ -2,19 +2,19 @@ version: 0.2
 
 env:
   variables:
-    AWS_REGION: "us-east-1" # Change to your AWS region
+    AWS_REGION: "us-east-1"  # Change to your AWS region
     ECR_REPOSITORY: "pipeline-repo"
     IMAGE_TAG: "latest"
 
 phases:
   pre_build:
     commands:
-      - ECR_REPOSITORY="pipeline-repo"
       - echo "Logging in to Amazon ECR..."
       - aws --version
       - REPO_URI=$(aws ecr describe-repositories --repository-names $ECR_REPOSITORY --query 'repositories[0].repositoryUri' --output text)
       - echo "ECR Repository URI: $REPO_URI"
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 345594605580.dkr.ecr.us-east-1.amazonaws.com
+      - echo "REPO_URI=$REPO_URI" >> $CODEBUILD_ENV_FILE
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
 
   build:
     commands:
